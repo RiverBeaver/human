@@ -110,7 +110,7 @@ function limitationDragFunction(
   } else {
     circle.radius(
       Const.RADIUS_LITTLE_CIRCLE +
-        (maxLength / length < 3 ? maxLength / length : 3)
+        (maxLength / length < 4 ? maxLength / length : 4)
     );
   }
 }
