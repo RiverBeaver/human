@@ -57,7 +57,6 @@ export class HumanComponent implements OnInit {
       strokeWidth: 6,
       lineCap: 'butt',
       lineJoin: 'round',
-      draggable: true,
     });
 
     this.pelvis = new Konva.Line({
@@ -92,6 +91,14 @@ export class HumanComponent implements OnInit {
     this.stage.add(this.layer);
     this.layer.draw();
   }
+
+  // animationDance() {
+  //   const anim = new Konva.Animation((frame) => {
+  //     console.log(this.layer.findOne('#leftHandLine'));
+  //   });
+
+  //   anim.start();
+  // }
 
   private ChangeCursor() {
     const array = [this.leftHand, this.rightHand, this.leftLeg, this.rightLeg];

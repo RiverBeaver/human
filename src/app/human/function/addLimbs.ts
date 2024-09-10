@@ -13,13 +13,25 @@ export function newLimb(isLeft: boolean, isHand: boolean) {
     maxLength1 = Const.HAND_LENGTH;
     maxLength2 = Const.WRIST_LENGTH;
   } else {
-    line = newlegLine(sign);
+    line = newLegLine(sign);
     maxLength1 = Const.LEG_LENGTH;
     maxLength2 = Const.FOOT_LENGTH;
   }
 
-  const circle1 = newCircle(line.points()[2], line.points()[3]);
-  const circle2 = newCircle(line.points()[4], line.points()[5]);
+  const circle1 = newCircle(
+    line.points()[2],
+    line.points()[3],
+    isLeft,
+    isHand,
+    1
+  );
+  const circle2 = newCircle(
+    line.points()[4],
+    line.points()[5],
+    isLeft,
+    isHand,
+    2
+  );
 
   circle1.on('dragmove', () => {
     limitationDragFunction(
@@ -57,10 +69,11 @@ function newHandLine(sign: number): Konva.Line {
     strokeWidth: 4,
     lineCap: 'round',
     lineJoin: 'round',
+    id: (sign === 1 ? 'left' : 'right') + 'HandLine',
   });
 }
 
-function newlegLine(sign: number) {
+function newLegLine(sign: number) {
   const baseX = Const.X_CENTER + (Const.PELVIS_LENGTH / 2) * sign;
   const baseY = Const.Y_BODY + Const.BODY_LENGTH;
   return new Konva.Line({
@@ -77,10 +90,17 @@ function newlegLine(sign: number) {
     strokeWidth: 5,
     lineCap: 'round',
     lineJoin: 'round',
+    id: (sign === 1 ? 'left' : 'right') + 'LegLine',
   });
 }
 
-function newCircle(x: number, y: number): Konva.Circle {
+function newCircle(
+  x: number,
+  y: number,
+  isLeft: boolean,
+  isHand: boolean,
+  number: number
+): Konva.Circle {
   return new Konva.Circle({
     x: x,
     y: y,
@@ -89,6 +109,11 @@ function newCircle(x: number, y: number): Konva.Circle {
     stroke: 'black',
     strokeWidth: 3,
     draggable: true,
+    id:
+      (isLeft ? 'left' : 'right') +
+      (isHand ? 'Hand' : 'Feg') +
+      'Circle' +
+      number,
   });
 }
 
