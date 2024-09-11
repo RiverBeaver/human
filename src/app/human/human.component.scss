@@ -1,0 +1,11 @@
+.buttons {
+  display: flex;
+  gap: 1rem;
+
+  button {
+    cursor: pointer;
+    background-color: #d8e6ff;
+    border-radius: 0.5rem;
+    padding: 0.25rem 0.75rem;
+  }
+}

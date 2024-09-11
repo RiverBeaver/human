@@ -1,4 +1,4 @@
-export const WIDTH = 500;
+export const WIDTH = 600;
 export const HIGHT = 700;
 
 export const X_CENTER = WIDTH / 2;

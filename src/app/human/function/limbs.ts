@@ -111,24 +111,25 @@ function newCircle(
     draggable: true,
     id:
       (isLeft ? 'left' : 'right') +
-      (isHand ? 'Hand' : 'Feg') +
+      (isHand ? 'Hand' : 'Leg') +
       'Circle' +
       number,
   });
 }
 
-function limitationDragFunction(
+export function limitationDragFunction(
   circle: Konva.Circle,
   baseX: number,
   baseY: number,
-  maxLength: number
+  maxLength: number,
+  isFixedLength: boolean = false
 ) {
   const dx = circle.x() - baseX;
   const dy = circle.y() - baseY;
 
   const length = getLength(dx, dy);
 
-  if (length > maxLength) {
+  if (length > maxLength || (isFixedLength && length < maxLength)) {
     const angle = Math.atan2(dy, dx);
     circle.x(baseX + maxLength * Math.cos(angle));
     circle.y(baseY + maxLength * Math.sin(angle));
@@ -140,7 +141,7 @@ function limitationDragFunction(
   }
 }
 
-function updateLine(
+export function updateLine(
   line: Konva.Line,
   circle1: Konva.Circle,
   circle2: Konva.Circle
