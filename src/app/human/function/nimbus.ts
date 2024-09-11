@@ -41,7 +41,7 @@ export function getNimbus() {
 
 export function zIndexAnimation(arrayCircles: Konva.Circle[]) {
   let lower = 0;
-  let upper = 20;
+  let upper = arrayCircles.length;
 
   for (let circle of arrayCircles) {
     if (circle.y() < (dimeterHead / 2) * 0.5 - Const.RADIUS_HEAD - 2) {
@@ -52,6 +52,8 @@ export function zIndexAnimation(arrayCircles: Konva.Circle[]) {
       upper--;
     }
   }
+
+  return lower + 1;
 }
 
 export function animationNimbus(

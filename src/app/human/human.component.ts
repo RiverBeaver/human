@@ -105,10 +105,8 @@ export class HumanComponent implements OnInit {
     this.layer.draw();
     this.animationDance();
 
-    this.head.setZIndex(10);
-
     const arrayCircles = this.stage.find('.nimbus');
-    zIndexAnimation(arrayCircles as Konva.Circle[]);
+    this.head.setZIndex(zIndexAnimation(arrayCircles as Konva.Circle[]));
     animationNimbus(this.layer, arrayCircles as Konva.Circle[]);
   }
 
