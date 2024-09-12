@@ -1,5 +1,5 @@
-export const WIDTH = 600;
-export const HIGHT = 700;
+export const WIDTH = window.innerWidth;
+export const HIGHT = window.innerHeight - 100;
 
 export const X_CENTER = WIDTH / 2;
 export const Y_HEAD = HIGHT / 4;
@@ -7,8 +7,10 @@ export const RADIUS_HEAD = 50;
 
 export const Y_BODY = Y_HEAD + RADIUS_HEAD;
 export const BODY_LENGTH = 150;
+export const NECK_LENGTH = 20;
 
 export const PELVIS_LENGTH = BODY_LENGTH / 2;
+export const SHOULDER_LENGTH = BODY_LENGTH / 1.4;
 
 export const RADIUS_LITTLE_CIRCLE = 10;
 

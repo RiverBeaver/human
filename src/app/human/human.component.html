@@ -1,5 +1,11 @@
-<div id="human"></div>
 <div class="buttons">
   <button (click)="startDance()">Start Dance</button>
   <button (click)="stopDance()">Stop Dance</button>
+  <button (click)="isGravity ? gravityStop() : gravityStart()">
+    Gravity:
+    <span [style.color]="isGravity ? '#067e06' : '#a52f2f'">{{
+      isGravity ? "On" : "Off"
+    }}</span>
+  </button>
 </div>
+<div id="human"></div>

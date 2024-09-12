@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import Konva from 'konva';
 import * as Const from '../constants/human.constants';
-import { newLimb, limitationDragFunction, updateLine } from './function/limbs';
-import { animationNimbus, getNimbus, zIndexAnimation } from './function/nimbus';
+import { Limbs } from './function/limbs';
+import { Nimbus } from './function/nimbus';
 import { Shape, ShapeConfig } from 'konva/lib/Shape';
+import { animationDance } from './function/animation-dance';
+import { BodyParts } from './function/body-parts';
+import { Gravity } from './function/gravity';
 
 @Component({
   selector: 'app-human',
@@ -17,11 +20,15 @@ export class HumanComponent implements OnInit {
 
   layer!: Konva.Layer;
 
+  headGroup!: Konva.Group;
   head!: Konva.Circle;
   nimbus!: Shape<ShapeConfig>[];
 
   body!: Konva.Line;
+  shoulder!: Konva.Line;
   pelvis!: Konva.Line;
+
+  // bodyPartsGroup!: Konva.Group;
 
   leftHand?: Konva.Group;
   rightHand?: Konva.Group;
@@ -29,6 +36,9 @@ export class HumanComponent implements OnInit {
   rightLeg?: Konva.Group;
 
   animDance?: Konva.Animation;
+
+  isGravity = false;
+  animGravity!: Konva.Animation;
 
   ngOnInit(): void {
     this.viewHuman();
@@ -41,60 +51,35 @@ export class HumanComponent implements OnInit {
       height: Const.HIGHT,
     });
 
-    this.layer = new Konva.Layer();
+    this.layer = new Konva.Layer({
+      draggable: true,
+    });
 
-    const group = new Konva.Group({
+    this.headGroup = new Konva.Group({
       x: Const.X_CENTER,
       y: Const.Y_HEAD,
     });
 
-    this.head = new Konva.Circle({
-      radius: Const.RADIUS_HEAD,
-      fill: 'red',
-      stroke: 'black',
-      strokeWidth: 3,
-    });
+    this.head = BodyParts.getHead();
+    this.nimbus = Nimbus.getNimbus();
 
-    this.nimbus = getNimbus();
+    this.headGroup.add(this.head);
+    this.headGroup.add(...this.nimbus);
 
-    group.add(this.head);
-    group.add(...this.nimbus);
+    this.body = BodyParts.getBody();
+    this.shoulder = BodyParts.getShoulder();
+    this.pelvis = BodyParts.getPelvis();
 
-    this.body = new Konva.Line({
-      points: [
-        Const.X_CENTER,
-        Const.Y_BODY,
-        Const.X_CENTER,
-        Const.Y_BODY + Const.BODY_LENGTH,
-      ],
-      stroke: 'black',
-      strokeWidth: 6,
-      lineCap: 'butt',
-      lineJoin: 'round',
-    });
+    this.leftHand = Limbs.newLimb(true, true);
+    this.rightHand = Limbs.newLimb(false, true);
+    this.leftLeg = Limbs.newLimb(true, false);
+    this.rightLeg = Limbs.newLimb(false, false);
 
-    this.pelvis = new Konva.Line({
-      points: [
-        Const.X_CENTER - Const.PELVIS_LENGTH / 2,
-        Const.Y_BODY + Const.BODY_LENGTH,
-        Const.X_CENTER + Const.PELVIS_LENGTH / 2,
-        Const.Y_BODY + Const.BODY_LENGTH,
-      ],
-      stroke: 'black',
-      strokeWidth: 5,
-      lineCap: 'round',
-      lineJoin: 'round',
-      draggable: true,
-    });
-
-    this.leftHand = newLimb(true, true);
-    this.rightHand = newLimb(false, true);
-    this.leftLeg = newLimb(true, false);
-    this.rightLeg = newLimb(false, false);
     this.ChangeCursor();
 
-    this.layer.add(group);
+    this.layer.add(this.headGroup);
     this.layer.add(this.body);
+    this.layer.add(this.shoulder);
     this.layer.add(this.pelvis);
     this.layer.add(this.leftHand);
     this.layer.add(this.rightHand);
@@ -103,77 +88,18 @@ export class HumanComponent implements OnInit {
 
     this.stage.add(this.layer);
     this.layer.draw();
-    this.animationDance();
+    this.animDance = animationDance(this.layer);
 
     const arrayCircles = this.stage.find('.nimbus');
-    this.head.setZIndex(zIndexAnimation(arrayCircles as Konva.Circle[]));
-    animationNimbus(this.layer, arrayCircles as Konva.Circle[]);
-  }
+    const zIndexHead = Nimbus.zIndexAnimation(arrayCircles as Konva.Circle[]);
+    this.head.setZIndex(zIndexHead);
+    Nimbus.animationNimbus(this.layer, arrayCircles as Konva.Circle[]);
 
-  animationDance() {
-    const leftHandLine = this.layer.findOne('#leftHandLine');
-    const leftHandCircle1 = this.layer.findOne('#leftHandCircle1');
-    const leftHandCircle2 = this.layer.findOne('#leftHandCircle2');
-    const rightHandLine = this.layer.findOne('#rightHandLine');
-    const rightHandCircle1 = this.layer.findOne('#rightHandCircle1');
-    const rightHandCircle2 = this.layer.findOne('#rightHandCircle2');
-    const leftLegLine = this.layer.findOne('#leftLegLine');
-    const leftLegCircle1 = this.layer.findOne('#leftLegCircle1');
-    const leftLegCircle2 = this.layer.findOne('#leftLegCircle2');
-    const rightLegLine = this.layer.findOne('#rightLegLine');
-    const rightLegCircle1 = this.layer.findOne('#rightLegCircle1');
-    const rightLegCircle2 = this.layer.findOne('#rightLegCircle2');
-
-    const amplitude = Const.WRIST_LENGTH;
-    const period = 1000;
-
-    this.animDance = new Konva.Animation((frame) => {
-      if (rightHandCircle2 && rightHandCircle1 && frame) {
-        rightHandCircle2.x(
-          amplitude * -Math.cos((frame.time * 2 * Math.PI) / -period) +
-            rightHandCircle1.x()
-        );
-        rightHandCircle2.y(
-          amplitude * Math.sin((frame.time * 2 * Math.PI) / -period) +
-            rightHandCircle1.y()
-        );
-
-        limitationDragFunction(
-          rightHandCircle2 as Konva.Circle,
-          rightHandCircle1.x(),
-          rightHandCircle1.y(),
-          Const.WRIST_LENGTH
-        );
-        updateLine(
-          rightHandLine as Konva.Line,
-          rightHandCircle1 as Konva.Circle,
-          rightHandCircle2 as Konva.Circle
-        );
-      }
-
-      if (leftHandCircle2 && leftHandCircle1 && frame) {
-        leftHandCircle2.x(
-          amplitude * Math.cos((frame.time * 2 * Math.PI) / period) +
-            leftHandCircle1.x()
-        );
-        leftHandCircle2.y(
-          amplitude * Math.sin((frame.time * 2 * Math.PI) / period) +
-            leftHandCircle1.y()
-        );
-
-        limitationDragFunction(
-          leftHandCircle2 as Konva.Circle,
-          leftHandCircle1.x(),
-          leftHandCircle1.y(),
-          Const.WRIST_LENGTH
-        );
-        updateLine(
-          leftHandLine as Konva.Line,
-          leftHandCircle1 as Konva.Circle,
-          leftHandCircle2 as Konva.Circle
-        );
-      }
-    }, this.layer);
+    (this.layer.find('#line') as Konva.Line[]).forEach((line) => {
+      line.on('mousedown mousemove', () => {
+        this.layer.stopDrag();
+      });
+    });
   }
 
   startDance() {
@@ -182,6 +108,16 @@ export class HumanComponent implements OnInit {
 
   stopDance() {
     this.animDance?.stop();
+  }
+
+  gravityStart() {
+    this.isGravity = true;
+    this.animGravity = Gravity.startGravity(this.layer);
+  }
+
+  gravityStop() {
+    this.isGravity = false;
+    this.animGravity?.stop();
   }
 
   private ChangeCursor() {
