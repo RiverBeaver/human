@@ -30,14 +30,23 @@ export class Gravity {
       }
 
       if (time % 20 === 0) {
-        Gravity.movieLimb(leftHand, speed, true);
-        Gravity.movieLimb(rightHand, speed, true);
-        Gravity.movieLimb(leftLeg, speed, false);
-        Gravity.movieLimb(rightLeg, speed, false);
+        const leftHandIsEnd = Gravity.movieLimb(leftHand, speed, true);
+        const rightHandIsEnd = Gravity.movieLimb(rightHand, speed, true);
+        const leftLegIsEnd = Gravity.movieLimb(leftLeg, speed, false);
+        const rightLegIsEnd = Gravity.movieLimb(rightLeg, speed, false);
+
+        if (leftHandIsEnd && rightHandIsEnd && leftLegIsEnd && rightLegIsEnd) {
+          console.log('end');
+          speed = 0;
+          frame.time = 0;
+          anim.stop();
+        }
       }
     }, layer);
 
     anim.start();
+
+    layer.on('dragend', () => anim.start());
 
     return anim;
   }
@@ -48,6 +57,9 @@ export class Gravity {
     const circle2 = limb.findOne('#circle2') as Konva.Circle;
     const maxLength1 = isHand ? Const.HAND_LENGTH : Const.LEG_LENGTH;
     const maxLength2 = isHand ? Const.WRIST_LENGTH : Const.FOOT_LENGTH;
+
+    const startYCircle1 = circle1.y();
+    const startYCircle2 = circle2.y();
 
     circle1.y(circle1.y() + speed);
 
@@ -76,5 +88,15 @@ export class Gravity {
       true
     );
     Limbs.updateLine(line, circle1, circle2);
+
+    if (
+      startYCircle1 === circle1.y() &&
+      startYCircle2 === circle2.y() &&
+      speed != 0
+    ) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
