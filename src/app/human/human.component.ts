@@ -112,6 +112,7 @@ export class HumanComponent implements OnInit {
 
   gravityStart() {
     this.isGravity = true;
+    this.animDance?.stop();
     this.animGravity = Gravity.startGravity(this.layer);
   }
 
