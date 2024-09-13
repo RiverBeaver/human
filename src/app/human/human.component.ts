@@ -38,7 +38,7 @@ export class HumanComponent implements OnInit {
   animDance?: Konva.Animation;
 
   isGravity = false;
-  animGravity!: Konva.Animation;
+  animGravity!: { anim: Konva.Animation; limb: Konva.Group }[];
 
   ngOnInit(): void {
     this.viewHuman();
@@ -81,10 +81,10 @@ export class HumanComponent implements OnInit {
     this.layer.add(this.body);
     this.layer.add(this.shoulder);
     this.layer.add(this.pelvis);
-    this.layer.add(this.leftHand);
-    this.layer.add(this.rightHand);
     this.layer.add(this.leftLeg);
     this.layer.add(this.rightLeg);
+    this.layer.add(this.leftHand);
+    this.layer.add(this.rightHand);
 
     this.stage.add(this.layer);
     this.layer.draw();
@@ -117,7 +117,9 @@ export class HumanComponent implements OnInit {
 
   gravityStop() {
     this.isGravity = false;
-    this.animGravity?.stop();
+    this.animGravity?.forEach((elem) => elem.anim.stop());
+    this.animGravity?.forEach((elem) => elem.limb.off('dragstart.event1'));
+    this.layer.off('dragstart.changePositions');
   }
 
   private ChangeCursor() {

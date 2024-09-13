@@ -1,57 +1,124 @@
 import Konva from 'konva';
 import * as Const from '../../constants/human.constants';
-import { Nimbus } from './nimbus';
 import { Limbs } from './limbs';
 
 export class Gravity {
+  private static speed: Record<string, number> = {
+    leftHand: 0,
+    rightHand: 0,
+    leftLeg: 0,
+    rightLeg: 0,
+  };
+  private static isStart: Record<string, boolean> = {
+    leftHand: false,
+    rightHand: false,
+    leftLeg: false,
+    rightLeg: false,
+  };
+
   static startGravity(layer: Konva.Layer) {
     const limbs = layer.find('.limb') as Konva.Group[];
-    console.log(limbs);
-    const leftHand = layer.findOne('#leftHand') as Konva.Group;
-    const rightHand = layer.findOne('#rightHand') as Konva.Group;
-    const leftLeg = layer.findOne('#leftLeg') as Konva.Group;
-    const rightLeg = layer.findOne('#rightLeg') as Konva.Group;
 
-    let speed = 0;
+    const limbsAnim: { anim: Konva.Animation; limb: Konva.Group }[] = [];
+
+    limbsAnim.push(
+      ...limbs.map((limb) => {
+        return Gravity.animLimb(layer, limb);
+      })
+    );
+
+    layer.on('dragstart.changePositions', (e) => {
+      if (e.target instanceof Konva.Circle) return;
+
+      layer.on('dragmove.changePositions', (e) => {
+        const moveX = e.evt.movementX;
+        const moveY = e.evt.movementY;
+
+        limbsAnim.forEach((elem) => {
+          Gravity.stopAnim(elem);
+        });
+
+        limbsAnim.forEach((elem) => {
+          elem.anim.start();
+          if (moveX < 3 && moveX > -3 && moveY < 3 && moveY > -3) {
+            elem.anim.frame.time = 400;
+          }
+        });
+
+        limbs.forEach((limb) => {
+          Gravity.dragLimb(limb, moveX / 2, moveY / 2);
+        });
+      });
+
+      layer.on('dragend.changePositions', () => {
+        layer.off('dragmove.changePositions');
+        layer.off('dragend.changePositions');
+      });
+    });
+
+    return limbsAnim;
+  }
+
+  private static animLimb(layer: Konva.Layer, limb: Konva.Group) {
     const g = 9.80665;
-    let isStart = false;
+    const speedChangeFreq = 200;
+    const renderingFreq = 50;
+
+    const nameLimb = limb.id() + '';
+    Gravity.isStart[nameLimb] = false;
 
     const anim = new Konva.Animation((frame) => {
       if (!frame) return;
-      if (!isStart) {
+      if (!Gravity.isStart[nameLimb]) {
         frame.time = 0;
-        isStart = true;
+        Gravity.speed[nameLimb] = 0;
+        Gravity.isStart[nameLimb] = true;
       }
 
-      const time = (Math.round(frame.time / 10) * 1000) / 100;
+      const time =
+        (Math.round(frame.time / renderingFreq) * renderingFreq * 100) / 100;
 
-      if (time % 100 === 0) {
-        speed = (frame.time / 50) * g;
+      if (time % speedChangeFreq === 0) {
+        Gravity.speed[nameLimb] = (frame.time / 150) * g;
       }
 
-      if (time % 20 === 0) {
-        const leftHandIsEnd = Gravity.movieLimb(leftHand, speed, true);
-        const rightHandIsEnd = Gravity.movieLimb(rightHand, speed, true);
-        const leftLegIsEnd = Gravity.movieLimb(leftLeg, speed, false);
-        const rightLegIsEnd = Gravity.movieLimb(rightLeg, speed, false);
+      if (time % renderingFreq === 0) {
+        const isHand = (limb.attrs.id as string).endsWith('Hand');
+        const limbIsEnd = Gravity.movieLimb(
+          limb,
+          Gravity.speed[nameLimb],
+          isHand
+        );
 
-        if (leftHandIsEnd && rightHandIsEnd && leftLegIsEnd && rightLegIsEnd) {
+        if (limbIsEnd) {
           console.log('end');
-          speed = 0;
-          frame.time = 0;
+          Gravity.isStart[nameLimb] = false;
           anim.stop();
         }
       }
     }, layer);
 
+    limb.on('dragstart.event1', () => {
+      Gravity.stopAnim({ anim, limb });
+
+      limb.on('dragend.event1', () => {
+        anim.start();
+        limb.off('dragend.event1');
+      });
+    });
+
     anim.start();
 
-    layer.on('dragend', () => anim.start());
-
-    return anim;
+    return { anim, limb };
   }
 
-  private static movieLimb(limb: Konva.Group, speed: number, isHand: boolean) {
+  private static movieLimb(
+    limb: Konva.Group,
+    speed: number,
+    isHand: boolean,
+    moveX = 0,
+    moveY = 0
+  ) {
     const line = limb.findOne('#line') as Konva.Line;
     const circle1 = limb.findOne('#circle1') as Konva.Circle;
     const circle2 = limb.findOne('#circle2') as Konva.Circle;
@@ -61,7 +128,8 @@ export class Gravity {
     const startYCircle1 = circle1.y();
     const startYCircle2 = circle2.y();
 
-    circle1.y(circle1.y() + speed);
+    circle1.y(circle1.y() + speed - moveY);
+    circle1.x(circle1.x() - moveX);
 
     Limbs.limitationDragFunction(
       circle1,
@@ -78,7 +146,8 @@ export class Gravity {
       true
     );
 
-    circle2.y(circle2.y() + speed);
+    circle2.y(circle2.y() + speed - moveY);
+    circle2.x(circle2.x() - moveX);
 
     Limbs.limitationDragFunction(
       circle2,
@@ -98,5 +167,21 @@ export class Gravity {
     } else {
       return false;
     }
+  }
+
+  private static dragLimb(limb: Konva.Group, moveX: number, moveY: number) {
+    const nameLimb = limb.id() + '';
+    const isHand = (limb.attrs.id as string).endsWith('Hand');
+
+    Gravity.movieLimb(limb, Gravity.speed[nameLimb], isHand, moveX, moveY);
+
+    Gravity.speed[nameLimb] -= moveY;
+  }
+
+  private static stopAnim(elem: { anim: Konva.Animation; limb: Konva.Group }) {
+    elem.anim.stop();
+    const nameLimb = elem.limb.id() as string;
+
+    Gravity.isStart[nameLimb] = false;
   }
 }
