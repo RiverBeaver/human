@@ -125,10 +125,10 @@ export class HumanComponent implements OnInit {
 
   private ChangeCursor() {
     const array = [this.leftHand, this.rightHand, this.leftLeg, this.rightLeg];
-    let stage = this.stage;
-    for (let group of array) {
+    const stage = this.stage;
+    for (const group of array) {
       if (group?.children) {
-        for (let elem of group.children) {
+        for (const elem of group.children) {
           if (elem instanceof Konva.Circle) {
             elem.on('mouseenter', function () {
               stage.container().style.cursor = 'pointer';

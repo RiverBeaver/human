@@ -29,11 +29,29 @@ export class Gravity {
 
     layer.on('dragstart.changePositions', (e) => {
       if (e.target instanceof Konva.Circle) return;
+      console.log(e);
+      let currentTouchesX: number;
+      let currentTouchesY: number;
+      if (e.evt.type === 'touchmove') {
+        currentTouchesX = e.evt.changedTouches[0].clientX as number;
+        currentTouchesY = e.evt.changedTouches[0].clientY as number;
+      }
+      // console.log(currentTouchesX, currentTouchesY);
 
       layer.on('dragmove.changePositions', (e) => {
-        const moveX = e.evt.movementX;
-        const moveY = e.evt.movementY;
+        // debugger;
+        console.log(e);
+        const moveX =
+          e.evt.movementX ??
+          (e.evt.changedTouches[0].clientX as number) - currentTouchesX;
+        const moveY =
+          e.evt.movementY ??
+          (e.evt.changedTouches[0].clientY as number) - currentTouchesY;
 
+        if (e.evt.type === 'touchmove') {
+          currentTouchesX = e.evt.changedTouches[0].clientX as number;
+          currentTouchesY = e.evt.changedTouches[0].clientY as number;
+        }
         limbsAnim.forEach((elem) => {
           Gravity.stopAnim(elem);
         });

@@ -13,15 +13,15 @@ export function animationDance(layer: Konva.Layer) {
   const rightHandCircle1 = rightHand.findOne('#circle1');
   const rightHandCircle2 = rightHand.findOne('#circle2');
 
-  const leftLeg = layer.findOne('#leftLeg') as Konva.Group;
-  const leftLegLine = leftLeg.findOne('#line');
-  const leftLegCircle1 = leftLeg.findOne('#circle1');
-  const leftLegCircle2 = leftLeg.findOne('#circle2');
+  // const leftLeg = layer.findOne('#leftLeg') as Konva.Group;
+  // const leftLegLine = leftLeg.findOne('#line');
+  // const leftLegCircle1 = leftLeg.findOne('#circle1');
+  // const leftLegCircle2 = leftLeg.findOne('#circle2');
 
-  const rightLeg = layer.findOne('#rightLeg') as Konva.Group;
-  const rightLegLine = rightLeg.findOne('#line');
-  const rightLegCircle1 = rightLeg.findOne('#circle1');
-  const rightLegCircle2 = rightLeg.findOne('#circle2');
+  // const rightLeg = layer.findOne('#rightLeg') as Konva.Group;
+  // const rightLegLine = rightLeg.findOne('#line');
+  // const rightLegCircle1 = rightLeg.findOne('#circle1');
+  // const rightLegCircle2 = rightLeg.findOne('#circle2');
 
   const amplitude = Const.WRIST_LENGTH;
   const period = 1000;

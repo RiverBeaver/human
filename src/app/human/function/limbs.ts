@@ -7,7 +7,7 @@ export class Limbs {
       name: 'limb',
       id: (isLeft ? 'left' : 'right') + (isHand ? 'Hand' : 'Leg'),
     });
-    let sign = isLeft ? 1 : -1;
+    const sign = isLeft ? 1 : -1;
     let line: Konva.Line;
     let maxLength1: number;
     let maxLength2: number;

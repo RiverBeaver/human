@@ -27,7 +27,7 @@ export class Nimbus {
       }
     }
 
-    for (let position of positions) {
+    for (const position of positions) {
       const circle = new Konva.Circle({
         x: position[0] - Const.RADIUS_HEAD,
         y: position[1] - Const.RADIUS_HEAD - height,
@@ -45,7 +45,7 @@ export class Nimbus {
     let lower = 0;
     let upper = arrayCircles.length;
 
-    for (let circle of arrayCircles) {
+    for (const circle of arrayCircles) {
       if (circle.y() < (dimeterHead / 2) * 0.5 - Const.RADIUS_HEAD - height) {
         circle.setZIndex(lower);
         lower++;
@@ -61,7 +61,7 @@ export class Nimbus {
   static animationNimbus(layer: Konva.Layer, arrayCircles: Konva.Circle[]) {
     const lengthArray = arrayCircles.length;
     const positions = arrayCircles.map((circle) => [circle.x(), circle.y()]);
-    let nextPositions: any[] = [];
+    let nextPositions: number[][] = [];
 
     const frequency = 300;
     const freq = 10;
@@ -97,17 +97,19 @@ export class Nimbus {
       }
 
       for (let i = 0; i < lengthArray; i++) {
-        const distanceX = nextPositions[i][0] - nextPositions.at(i - 1)[0];
-        const distanceY = nextPositions[i][1] - nextPositions.at(i - 1)[1];
+        let nextI = i - 1;
+        if (nextI < 0) {
+          nextI = lengthArray - 1;
+        }
+        const distanceX = nextPositions[i][0] - nextPositions[nextI][0];
+        const distanceY = nextPositions[i][1] - nextPositions[nextI][1];
 
         arrayCircles[i].x(
-          nextPositions.at(i - 1)[0] +
-            distanceX * ((time % frequency) / frequency)
+          nextPositions[nextI][0] + distanceX * ((time % frequency) / frequency)
         );
 
         arrayCircles[i].y(
-          nextPositions.at(i - 1)[1] +
-            distanceY * ((time % frequency) / frequency)
+          nextPositions[nextI][1] + distanceY * ((time % frequency) / frequency)
         );
       }
 

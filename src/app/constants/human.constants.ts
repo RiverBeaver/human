@@ -1,5 +1,6 @@
-export const WIDTH = window.innerWidth;
-export const HIGHT = window.innerHeight - 100;
+export const WIDTH = window.innerWidth > 450 ? window.innerWidth : 450;
+export const HIGHT =
+  window.innerHeight - 100 > 300 ? window.innerHeight - 100 : 300;
 
 export const X_CENTER = WIDTH / 2;
 export const Y_HEAD = HIGHT / 4;
